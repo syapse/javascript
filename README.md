@@ -47,7 +47,7 @@
     var item = {};
     ```
 
-  - Don't use un-quoted [reserved words](http://es5.github.io/#x7.6.1) as keys. It won't work in ECMAScript 3 breowsers (ie. IE9). [More info](http://caniuse.com/#search=ecmascript)
+  - Don't use un-quoted [reserved words](http://es5.github.io/#x7.6.1) as keys. It won't work in ECMAScript 3 browsers (ie. IE9). [More info](http://caniuse.com/#search=ecmascript)
 
     ```javascript
     // bad
