@@ -365,6 +365,7 @@
 ## Comments
 
   - Use `/** ... */` for multiline comments. Include a description, specify types and values for all parameters and return values.
+  - NOTE: The developer may choose, at their option, top not include the leading asterisks on each line, as technically this is allowed by the JSDoc standard.
 
     ```javascript
     // bad
@@ -394,8 +395,21 @@
 
       return element;
     }
-    ```
-  - The developer may choose, at their option, top not include the leading asterisks on each line, as technically this is allowed by the JSDoc standard.
+    
+    // also acceptable
+    /**
+     make() returns a new element
+     based on the passed in tag name
+     @param <String> tag
+     @return <Element> element
+     */
+    function make(tag) {
+
+      // ...stuff...
+
+      return element;
+    }
+    
   
   - Use `//` for single line comments. Place single line comments on a newline above the subject of the comment. Put an empty line before the comment.
 
