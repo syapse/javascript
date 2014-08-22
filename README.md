@@ -47,7 +47,7 @@
     var item = {};
     ```
 
-  - Don't use [reserved words](http://es5.github.io/#x7.6.1) as keys. It won't work in IE8. [More info](https://github.com/airbnb/javascript/issues/61)
+  - Don't use un-quoted [reserved words](http://es5.github.io/#x7.6.1) as keys. It won't work in ECMAScript 3 breowsers (ie. IE9). [More info](http://caniuse.com/#search=ecmascript)
 
     ```javascript
     // bad
@@ -63,7 +63,7 @@
     };
     ```
 
-  - Use readable synonyms in place of reserved words.
+  - If possible, use readable synonyms in place of reserved words.
 
     ```javascript
     // bad
@@ -81,6 +81,8 @@
       type: 'alien'
     };
     ```
+    
+    If you *must* use a keyword as a key for some reason (eg. because a library or API expects it), quoting the key is allowed.
 
 **[⬆ back to top](#table-of-contents)**
 
@@ -109,7 +111,7 @@
     someStack.push('abracadabra');
     ```
 
-  - When you need to copy an array use Array#slice. [jsPerf](http://jsperf.com/converting-arguments-to-an-array/7)
+  - When you need to copy an array use Underscore's `_.clone` method.
 
     ```javascript
     var len = items.length,
@@ -122,24 +124,25 @@
     }
 
     // good
-    itemsCopy = items.slice();
+    itemsCopy = _(items).clone();
     ```
 
-  - To convert an array-like object to an array, use Array#slice.
+  - To convert an array-like object to an array, use Underscore's `toArray` method.
 
     ```javascript
     function trigger() {
-      var args = Array.prototype.slice.call(arguments);
+      var args = _.toArray(arguments);
       ...
     }
     ```
+    Note: This should mainly be used to convert arguments; converting other types (eg. strings) may have unexpected results.
 
 **[⬆ back to top](#table-of-contents)**
 
 
 ## Strings
 
-  - Use single quotes `''` for strings
+  - Always yse single quotes `''` for strings, unless you have a literal string with asingle-quote inside it.  In that case, the developer may choose to escape the single quote, or they may opt to use double-quotes, at their discretion.
 
     ```javascript
     // bad
@@ -155,7 +158,7 @@
     var fullName = 'Bob ' + this.lastName;
     ```
 
-  - Strings longer than 80 characters should be written across multiple lines using string concatenation.
+  - String literals which cause their line to exceed 100 characters should be written across multiple lines using string concatenation.
   - Note: If overused, long strings with concatenation could impact performance. [jsPerf](http://jsperf.com/ya-string-concat) & [Discussion](https://github.com/airbnb/javascript/issues/40)
 
     ```javascript
@@ -173,56 +176,24 @@
       'of Batman. When you stop to think about how Batman had anything to do ' +
       'with this, you would get nowhere fast.';
     ```
+  - If you need to concatenate multiple strings you can either use the `+` operator or the `join` method (whichever, in the developer's opinion, would be more readable).
 
-  - When programmatically building up a string, use Array#join instead of string concatenation. Mostly for IE: [jsPerf](http://jsperf.com/string-vs-array-concat/2).
-
-    ```javascript
-    var items,
-        messages,
-        length,
-        i;
-
-    messages = [{
-      state: 'success',
-      message: 'This one worked.'
-    }, {
-      state: 'success',
-      message: 'This one worked as well.'
-    }, {
-      state: 'error',
-      message: 'This one did not work.'
-    }];
-
-    length = messages.length;
-
-    // bad
-    function inbox(messages) {
-      items = '<ul>';
-
-      for (i = 0; i < length; i++) {
-        items += '<li>' + messages[i].message + '</li>';
-      }
-
-      return items + '</ul>';
-    }
-
-    // good
-    function inbox(messages) {
-      items = [];
-
-      for (i = 0; i < length; i++) {
-        items[i] = messages[i].message;
-      }
-
-      return '<ul><li>' + items.join('</li><li>') + '</li></ul>';
-    }
-    ```
-
+  - Particularly long strings should not be put in the Javascript code at all; instead they should be stored in a separate text file and brought in via Require.js.
+ 
 **[⬆ back to top](#table-of-contents)**
 
 
 ## Functions
 
+  - All functions should be declared as variables, both for readability and to avoid hoisting issues (as well as to reinforce the notion that functions are first-class objects).
+    ```javascript
+    // bad
+    function foo() { ... }
+
+    // good
+    var foo = function() { ... };
+    ```
+  
   - Function expressions:
 
     ```javascript
@@ -241,24 +212,16 @@
       console.log('Welcome to the Internet. Please follow me.');
     })();
     ```
+  - In general, named functions should be avoided, as they just add redundant information (eg. `var foo = function foo() { ...);`.  However, named functions can be helpful when debugging, so it is acceptable to check in a named function expression in the rare case when a particular function is frequently involved in debugging.
 
-  - Never declare a function in a non-function block (if, while, etc). Assign the function to a variable instead. Browsers will allow you to do it, but they all interpret it differently, which is bad news bears.
-  - **Note:** ECMA-262 defines a `block` as a list of statements. A function declaration is not a statement. [Read ECMA-262's note on this issue](http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf#page=97).
+  - Never declare a function in a looping block (for, while, etc), as this may be confusing.
 
     ```javascript
     // bad
-    if (currentUser) {
+    for (var i = 0; i < 100; i++) {
       function test() {
         console.log('Nope.');
       }
-    }
-
-    // good
-    var test;
-    if (currentUser) {
-      test = function test() {
-        console.log('Yup.');
-      };
     }
     ```
 
@@ -282,7 +245,7 @@
 
 ## Properties
 
-  - Use dot notation when accessing properties.
+  - Use dot notation whenever possible.
 
     ```javascript
     var luke = {
@@ -297,7 +260,7 @@
     var isJedi = luke.jedi;
     ```
 
-  - Use subscript notation `[]` when accessing properties with a variable.
+  - Use subscript notation `[]` only when the key can not be expressed using dot notation (eg. 'foo-bar') or when accessing properties using a variable.
 
     ```javascript
     var luke = {
@@ -327,7 +290,7 @@
     var superPower = new SuperPower();
     ```
 
-  - Use one `var` declaration for multiple variables and declare each variable on a newline.
+  - Developers may choose to use one `var` declaration or multiple `var` declarations for multiple variables, as they see fit.  Multiple var statements makes it easier to intersperse `debugger` statements in between, but if several variables are concepually linked the readability benefit of declaring them altogether in a single var statement may outweight the ability to easily add `debugger` statements.
 
     ```javascript
     // bad
@@ -341,7 +304,7 @@
         dragonball = 'z';
     ```
 
-  - Declare unassigned variables last. This is helpful when later on you might need to assign a variable depending on one of the previous assigned variables.
+  - Variables should be grouped by concept first, and then within groupings unassigned variables should be declared last. This is helpful when later on you might need to assign a variable depending on one of the previous assigned variables.
 
     ```javascript
     // bad
@@ -363,203 +326,11 @@
         i;
     ```
 
-  - Assign variables at the top of their scope. This helps avoid issues with variable declaration and assignment hoisting related issues.
-
-    ```javascript
-    // bad
-    function() {
-      test();
-      console.log('doing stuff..');
-
-      //..other stuff..
-
-      var name = getName();
-
-      if (name === 'test') {
-        return false;
-      }
-
-      return name;
-    }
-
-    // good
-    function() {
-      var name = getName();
-
-      test();
-      console.log('doing stuff..');
-
-      //..other stuff..
-
-      if (name === 'test') {
-        return false;
-      }
-
-      return name;
-    }
-
-    // bad
-    function() {
-      var name = getName();
-
-      if (!arguments.length) {
-        return false;
-      }
-
-      return true;
-    }
-
-    // good
-    function() {
-      if (!arguments.length) {
-        return false;
-      }
-
-      var name = getName();
-
-      return true;
-    }
-    ```
+  - Assign variables when they first get used, or whenever the developer feels it would be most clear to define them; variables do *not* need to be declared at the top of their scope.
 
 **[⬆ back to top](#table-of-contents)**
 
 
-## Hoisting
-
-  - Variable declarations get hoisted to the top of their scope, their assignment does not.
-
-    ```javascript
-    // we know this wouldn't work (assuming there
-    // is no notDefined global variable)
-    function example() {
-      console.log(notDefined); // => throws a ReferenceError
-    }
-
-    // creating a variable declaration after you
-    // reference the variable will work due to
-    // variable hoisting. Note: the assignment
-    // value of `true` is not hoisted.
-    function example() {
-      console.log(declaredButNotAssigned); // => undefined
-      var declaredButNotAssigned = true;
-    }
-
-    // The interpreter is hoisting the variable
-    // declaration to the top of the scope.
-    // Which means our example could be rewritten as:
-    function example() {
-      var declaredButNotAssigned;
-      console.log(declaredButNotAssigned); // => undefined
-      declaredButNotAssigned = true;
-    }
-    ```
-
-  - Anonymous function expressions hoist their variable name, but not the function assignment.
-
-    ```javascript
-    function example() {
-      console.log(anonymous); // => undefined
-
-      anonymous(); // => TypeError anonymous is not a function
-
-      var anonymous = function() {
-        console.log('anonymous function expression');
-      };
-    }
-    ```
-
-  - Named function expressions hoist the variable name, not the function name or the function body.
-
-    ```javascript
-    function example() {
-      console.log(named); // => undefined
-
-      named(); // => TypeError named is not a function
-
-      superPower(); // => ReferenceError superPower is not defined
-
-      var named = function superPower() {
-        console.log('Flying');
-      };
-    }
-
-    // the same is true when the function name
-    // is the same as the variable name.
-    function example() {
-      console.log(named); // => undefined
-
-      named(); // => TypeError named is not a function
-
-      var named = function named() {
-        console.log('named');
-      }
-    }
-    ```
-
-  - Function declarations hoist their name and the function body.
-
-    ```javascript
-    function example() {
-      superPower(); // => Flying
-
-      function superPower() {
-        console.log('Flying');
-      }
-    }
-    ```
-
-  - For more information refer to [JavaScript Scoping & Hoisting](http://www.adequatelygood.com/2010/2/JavaScript-Scoping-and-Hoisting) by [Ben Cherry](http://www.adequatelygood.com/)
-
-**[⬆ back to top](#table-of-contents)**
-
-
-
-## Conditional Expressions & Equality
-
-  - Use `===` and `!==` over `==` and `!=`.
-  - Conditional expressions are evaluated using coercion with the `ToBoolean` method and always follow these simple rules:
-
-    + **Objects** evaluate to **true**
-    + **Undefined** evaluates to **false**
-    + **Null** evaluates to **false**
-    + **Booleans** evaluate to **the value of the boolean**
-    + **Numbers** evaluate to **false** if **+0, -0, or NaN**, otherwise **true**
-    + **Strings** evaluate to **false** if an empty string `''`, otherwise **true**
-
-    ```javascript
-    if ([0]) {
-      // true
-      // An array is an object, objects evaluate to true
-    }
-    ```
-
-  - Use shortcuts.
-
-    ```javascript
-    // bad
-    if (name !== '') {
-      // ...stuff...
-    }
-
-    // good
-    if (name) {
-      // ...stuff...
-    }
-
-    // bad
-    if (collection.length > 0) {
-      // ...stuff...
-    }
-
-    // good
-    if (collection.length) {
-      // ...stuff...
-    }
-    ```
-
-  - For more information see [Truth Equality and JavaScript](http://javascriptweblog.wordpress.com/2011/02/07/truth-equality-and-javascript/#more-2108) by Angus Croll
-
-**[⬆ back to top](#table-of-contents)**
 
 
 ## Blocks
@@ -624,7 +395,8 @@
       return element;
     }
     ```
-
+  - The developer may choose, at their option, top not include the leading asterisks on each line, as technically this is allowed by the JSDoc standard.
+  
   - Use `//` for single line comments. Place single line comments on a newline above the subject of the comment. Put an empty line before the comment.
 
     ```javascript
