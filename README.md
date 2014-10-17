@@ -472,12 +472,12 @@
 
 ## Whitespace
 
-  - Use soft tabs set to 2 spaces
+  - Use soft tabs set to 4 spaces
 
     ```javascript
     // bad
     function() {
-    ∙∙∙∙var name;
+    ∙∙var name;
     }
 
     // bad
@@ -487,7 +487,7 @@
 
     // good
     function() {
-    ∙∙var name;
+    ∙∙∙∙var name;
     }
     ```
 
@@ -527,59 +527,39 @@
     var x = y + 5;
     ```
 
-  - End files with a single newline character.
+  - End files with either a single or a double newline character (it doesn't matter which).
+
+  - Break long method chains up in to multiple lines, using one of two styles:
 
     ```javascript
     // bad
-    (function(global) {
-      // ...stuff...
-    })(this);
-    ```
-
-    ```javascript
-    // bad
-    (function(global) {
-      // ...stuff...
-    })(this);↵
-    ↵
-    ```
-
-    ```javascript
-    // good
-    (function(global) {
-      // ...stuff...
-    })(this);↵
-    ```
-
-  - Use indentation when making long method chains.
-
-    ```javascript
-    // bad
-    $('#items').find('.selected').highlight().end().find('.open').updateCount();
+    $('#items').find('.selected').highlight().updateCount();
 
     // good
     $('#items')
-      .find('.selected')
+        .find('.selected')
         .highlight()
-        .end()
-      .find('.open')
         .updateCount();
 
-    // bad
-    var leds = stage.selectAll('.led').data(data).enter().append('svg:svg').class('led', true)
-        .attr('width',  (radius + margin) * 2).append('svg:g')
-        .attr('transform', 'translate(' + (radius + margin) + ',' + (radius + margin) + ')')
-        .call(tron.led);
+    // also good
+    $('#items').find('.selected')
+               .highlight()
+               .updateCount();
+    ```
 
+  - Keep in mind that readability is paramount, so if the second format results in excessively indented code, refactor it to use a variable:
+
+    ```javascript
+    // bad
+    $('#realllyLongIdOfAnElement .reallyLongClassNameForAnElement').find('.selected')
+                                                                   .highlight()
+                                                                   .updateCount();
+                                                                   
     // good
-    var leds = stage.selectAll('.led')
-        .data(data)
-      .enter().append('svg:svg')
-        .class('led', true)
-        .attr('width',  (radius + margin) * 2)
-      .append('svg:g')
-        .attr('transform', 'translate(' + (radius + margin) + ',' + (radius + margin) + ')')
-        .call(tron.led);
+    var $long = ('#realllyLongIdOfAnElement .reallyLongClassNameForAnElement')
+    $long.find('.selected')
+         .highlight()
+         .updateCount();
     ```
 
 **[⬆ back to top](#table-of-contents)**
@@ -1133,6 +1113,18 @@
     // good
     $sidebar.find('ul').hide();
     ```
+  - Never affect more than one element in a single jQuery statement, as this makes the code less readable.  Instead, break the statement up in to multiple statements
+  
+    ```javascript
+    // bad
+    $('#foo').find('ul').hide().find('li').addClass('hidden');
+   
+    // good
+    var $foo = $('#foo');
+    $foo.find('ul').hide();
+    $foo.find('ul li').addClass('hidden');
+    ```
+
 
 **[⬆ back to top](#table-of-contents)**
 
