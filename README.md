@@ -564,6 +564,9 @@
 
 **[⬆ back to top](#table-of-contents)**
 
+*RULES BELOW THIS POINT ARE NOT PART OF SYAPSE'S FORMATTING GUIDELINES*
+*(please consider them to be under consideration)*
+
 ## Commas
 
   - Leading commas: **Nope.**
