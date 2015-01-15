@@ -24,6 +24,7 @@
   1. [Constructors](#constructors)
   1. [Events](#events)
   1. [Modules](#modules)
+  1. [Require](#require)
   1. [jQuery](#jquery)
   1. [ECMAScript 5 Compatibility](#ecmascript-5-compatibility)
   1. [Testing](#testing)
@@ -1057,6 +1058,12 @@
 
 **[⬆ back to top](#table-of-contents)**
 
+## Require
+
+  - All dependencies should be defined inside a `define` statement when at all possible, NOT as part of an inline (single-argument) `require` statement. However, certain modules need to be brought in via an inline `require` (eg. `routerInstance`) because they cannot be brought in through a `define` without creating a circular dependency. For these modules it is acceptable to use an inline `require`.
+  - To help ensure that we are not adding inline `require` statements unecessarily, all code reviews should endeavor to find non-inline `require` alternatives to any inline `require` statements in the reviewed code.
+  
+**[⬆ back to top](#table-of-contents)**
 
 ## jQuery
 
