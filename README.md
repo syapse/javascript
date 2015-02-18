@@ -713,8 +713,8 @@
     ```
   
   - An exception to the above rule is single-character variable names that are an industry-wide convention. Specifically:
-  * "e" - can be used as the first argument of an event handling function
-  * "i", "j", "k", etc. - can be used as the name of the counter inside a `for` loop (on the rare occaisions when we use `for` loops instead of `_.each` or a similar Underscore iterative function).
+    * "e" - can be used as the first argument of an event handling function
+    * "i", "j", "k", etc. - can be used as the name of the counter inside a `for` loop (on the rare occaisions when we use `for` loops instead of `_.each` or a similar Underscore iterative function).
 
   - Use camelCase when naming objects, functions, and instances
 
