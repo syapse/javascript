@@ -565,9 +565,6 @@
 
 **[⬆ back to top](#table-of-contents)**
 
-*RULES BELOW THIS POINT ARE NOT PART OF SYAPSE'S FORMATTING GUIDELINES*
-*(please consider them to be under consideration)*
-
 ## Commas
 
   - Leading commas: **Nope.**
@@ -600,33 +597,7 @@
     };
     ```
 
-  - Additional trailing comma: **Nope.** This can cause problems with IE6/7 and IE9 if it's in quirksmode. Also, in some implementations of ES3 would add length to an array if it had an additional trailing comma. This was clarified in ES5 ([source](http://es5.github.io/#D)):
-
-  > Edition 5 clarifies the fact that a trailing comma at the end of an ArrayInitialiser does not add to the length of the array. This is not a semantic change from Edition 3 but some implementations may have previously misinterpreted this.
-
-    ```javascript
-    // bad
-    var hero = {
-      firstName: 'Kevin',
-      lastName: 'Flynn',
-    };
-
-    var heroes = [
-      'Batman',
-      'Superman',
-    ];
-
-    // good
-    var hero = {
-      firstName: 'Kevin',
-      lastName: 'Flynn'
-    };
-
-    var heroes = [
-      'Batman',
-      'Superman'
-    ];
-    ```
+  - Additional trailing comma: **Optional.** Although a trailing comma can cause problems with older Internet Explorers, the Require Optimizer takes care of eliminating these for us. Developers debugging (older) Internet Explorer-specific issues should temporarily switch to using the optimized files instead of the original source files.
 
 **[⬆ back to top](#table-of-contents)**
 
@@ -648,6 +619,8 @@
       return name;
     })();
 
+Leading with a semi-colon when using the module pattern is acceptable ... but under normal circumstances we should never have any need to use the module pattern (as we use Require's module system).
+
     // good (guards against the function becoming an argument when two files with IIFEs are concatenated)
     ;(function() {
       var name = 'Skywalker';
@@ -662,26 +635,19 @@
 
 ## Type Casting & Coercion
 
-  - Perform type coercion at the beginning of the statement.
+  - If you are adding two variables together, and have no idea what type the second variable will have, then it is safer to start with the variable whose type you know (ie. perform type coercion at the beginning of the statement). However, if you know the types of both variables (as should almost always be the case), then you can put them in any order. Syapse has no requirement on which order to add variables, and expects developers to understand the language's type coercion and program appropriately.
   - Strings:
 
     ```javascript
     //  => this.reviewScore = 9;
 
-    // bad
+    // good (as long as you know this.reviewScore is a string)
     var totalScore = this.reviewScore + '';
 
-    // good
+    // also good
     var totalScore = '' + this.reviewScore;
 
-    // bad
-    var totalScore = '' + this.reviewScore + ' total score';
-
-    // good
-    var totalScore = this.reviewScore + ' total score';
-    ```
-
-  - Use `parseInt` for Numbers and always with a radix for type casting.
+  - Use `parseInt` for Numbers and always with a radix for type casting. While using `Number(inputValue)` will also work, it's simpler to have all Syapse developers use the same mechanism for coercing strings to integers (and that mechanism has historically always been parseInt).
 
     ```javascript
     var inputValue = '4';
@@ -698,32 +664,14 @@
     // bad
     var val = parseInt(inputValue);
 
-    // good
+    // bad (it works, but departs from our convention of using parseInt with no benefit)
     var val = Number(inputValue);
 
     // good
     var val = parseInt(inputValue, 10);
     ```
 
-  - If for whatever reason you are doing something wild and `parseInt` is your bottleneck and need to use Bitshift for [performance reasons](http://jsperf.com/coercion-vs-casting/3), leave a comment explaining why and what you're doing.
-
-    ```javascript
-    // good
-    /**
-     * parseInt was the reason my code was slow.
-     * Bitshifting the String to coerce it to a
-     * Number made it a lot faster.
-     */
-    var val = inputValue >> 0;
-    ```
-
-  - **Note:** Be careful when using bitshift operations. Numbers are represented as [64-bit values](http://es5.github.io/#x4.3.19), but Bitshift operations always return a 32-bit integer ([source](http://es5.github.io/#x11.7)). Bitshift can lead to unexpected behavior for integer values larger than 32 bits. [Discussion](https://github.com/airbnb/javascript/issues/109). Largest signed 32-bit Int is 2,147,483,647:
-
-    ```javascript
-    2147483647 >> 0 //=> 2147483647
-    2147483648 >> 0 //=> -2147483648
-    2147483649 >> 0 //=> -2147483647
-    ```
+Do not use bitshifting to parse numbers.  If parseInt ever becomes a performance bottleneck (which is very unlikely) we can always revisit this rule, but for now using bitshifting is considered to be unecessary obfuscation of the code.
 
   - Booleans:
 
@@ -733,7 +681,7 @@
     // bad
     var hasAge = new Boolean(age);
 
-    // good
+    // bad (again, it will work, but goes against Syapse convention)
     var hasAge = Boolean(age);
 
     // good
@@ -745,7 +693,7 @@
 
 ## Naming Conventions
 
-  - Avoid single letter names. Be descriptive with your naming.
+  - Avoid single letter or abbreviated (eg. "tmplt" instead of "template") names. Be descriptive with your naming.
 
     ```javascript
     // bad
@@ -758,6 +706,10 @@
       // ..stuff..
     }
     ```
+  
+  - An exception to the above rule is single-character variable names that are an industry-wide convention. Specifically:
+  * "e" - can be used as the first argument of an event handling function
+  * "i", "j", "k", etc. - can be used as the name of the counter inside a `for` loop (on the rare occaisions when we use `for` loops instead of `_.each` or a similar Underscore iterative function).
 
   - Use camelCase when naming objects, functions, and instances
 
@@ -810,15 +762,17 @@
     // good
     this._firstName = 'Panda';
     ```
+  
+  - NOTE: As a general practice developers should be strongly biased towards creating private methods. It's easy to change a private method to a public one (you just remove the "_") but converting in the other direction (public => private) is significantly harder (you have to search the entire codebase to find any out-of-class references to the method before it can be made private).
 
-  - When saving a reference to `this` use `_this`.
+  - When saving a reference to `this` use `self` ... although most of the time you should never need to use `self` as you can simply use `_.bind`, `done2`, etc. to pass the context without the need for an extra variable.
 
     ```javascript
     // bad
     function() {
-      var self = this;
+      var _this = this;
       return function() {
-        console.log(self);
+        console.log(_this);
       };
     }
 
@@ -832,17 +786,24 @@
 
     // good
     function() {
-      var _this = this;
+      var self = this;
       return function() {
-        console.log(_this);
+        console.log(self);
       };
+    }
+    
+    // better
+    function() {
+      return _(function() {
+        console.log(_this);
+      }).bind(this);
     }
     ```
 
-  - Name your functions. This is helpful for stack traces.
+  - Developers may choose to name their functions or not. While this practice can be helpful when debugging, thanks to improvements in the Chrome Debugger explicit function names are mostly unecessary, and let's face it: typing a function's name twice is annoying. At the same time if you do need to add a function name for debugging, there's nothing wrong with leaving it in the code afterward.
 
     ```javascript
-    // bad
+    // good
     var log = function(msg) {
       console.log(msg);
     };
@@ -891,89 +852,40 @@
     }
     ```
 
-  - It's okay to create get() and set() functions, but be consistent.
-
-    ```javascript
-    function Jedi(options) {
-      options || (options = {});
-      var lightsaber = options.lightsaber || 'blue';
-      this.set('lightsaber', lightsaber);
-    }
-
-    Jedi.prototype.set = function(key, val) {
-      this[key] = val;
-    };
-
-    Jedi.prototype.get = function(key) {
-      return this[key];
-    };
-    ```
-
 **[⬆ back to top](#table-of-contents)**
 
 
 ## Constructors
 
-  - Assign methods to the prototype object, instead of overwriting the prototype with a new object. Overwriting the prototype makes inheritance impossible: by resetting the prototype you'll overwrite the base!
+
+  - Methods in general should not return `this` to enable "chaining."  There are two exceptions to this rule:
+  * `render` methods (because of both Backbone and Syapse conventions, all `render` methods should return `this`; this gives the invoker of `render` the option to use `render().el` or `render().$el`)
+  * Chaining is acceptable if used only within a single class, in methods that have been specifically designed to be chained. Syapse does not currently have such a class, but both jQuery and Sinon provide examples of how this approach could be valuable, and one could certainly imagine a future class that could benefit (eg. a SyQlBuilder class that uses chained methods for adding statements).
 
     ```javascript
-    function Jedi() {
-      console.log('new jedi');
-    }
-
-    // bad
-    Jedi.prototype = {
-      fight: function fight() {
-        console.log('fighting');
-      },
-
-      block: function block() {
-        console.log('blocking');
-      }
-    };
-
     // good
-    Jedi.prototype.fight = function fight() {
-      console.log('fighting');
-    };
+    Backbone.View.extend({
+        jump: function() {
+          this.jumping = true;
+          return true;
+        };
+    });
 
-    Jedi.prototype.block = function block() {
-      console.log('blocking');
-    };
-    ```
-
-  - Methods can return `this` to help with method chaining.
-
-    ```javascript
-    // bad
-    Jedi.prototype.jump = function() {
-      this.jumping = true;
-      return true;
-    };
-
-    Jedi.prototype.setHeight = function(height) {
-      this.height = height;
-    };
-
-    var luke = new Jedi();
-    luke.jump(); // => true
-    luke.setHeight(20) // => undefined
-
+    // discouraged
+    Backbone.View.extend({
+        jump: function() {
+          this.jumping = true;
+          return this;
+        };
+    });
+    
     // good
-    Jedi.prototype.jump = function() {
-      this.jumping = true;
-      return this;
-    };
-
-    Jedi.prototype.setHeight = function(height) {
-      this.height = height;
-      return this;
-    };
-
-    var luke = new Jedi();
-
-    luke.jump()
-      .setHeight(20);
+    Backbone.View.extend({
+        render: function() {
+          this.jumping = true;
+          return true;
+        };
+    });
     ```
 
 
@@ -996,6 +908,8 @@
 
 **[⬆ back to top](#table-of-contents)**
 
+*RULES BELOW THIS POINT ARE NOT PART OF SYAPSE'S FORMATTING GUIDELINES*
+*(please consider them to be under consideration)*
 
 ## Events
 
