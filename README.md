@@ -602,6 +602,7 @@
 **[⬆ back to top](#table-of-contents)**
 
 
+
 ## Semicolons
 
   - **Yup.**
@@ -618,9 +619,11 @@
       var name = 'Skywalker';
       return name;
     })();
+    ```
 
-Leading with a semi-colon when using the module pattern is acceptable ... but under normal circumstances we should never have any need to use the module pattern (as we use Require's module system).
+  - Leading with a semi-colon when using the module pattern is acceptable ... but under normal circumstances we should never have any need to use the module pattern (as we use Require's module system).
 
+    ```javascript
     // good (guards against the function becoming an argument when two files with IIFEs are concatenated)
     ;(function() {
       var name = 'Skywalker';
@@ -636,6 +639,7 @@ Leading with a semi-colon when using the module pattern is acceptable ... but un
 ## Type Casting & Coercion
 
   - If you are adding two variables together, and have no idea what type the second variable will have, then it is safer to start with the variable whose type you know (ie. perform type coercion at the beginning of the statement). However, if you know the types of both variables (as should almost always be the case), then you can put them in any order. Syapse has no requirement on which order to add variables, and expects developers to understand the language's type coercion and program appropriately.
+  
   - Strings:
 
     ```javascript
@@ -646,6 +650,7 @@ Leading with a semi-colon when using the module pattern is acceptable ... but un
 
     // also good
     var totalScore = '' + this.reviewScore;
+    ```
 
   - Use `parseInt` for Numbers and always with a radix for type casting. While using `Number(inputValue)` will also work, it's simpler to have all Syapse developers use the same mechanism for coercing strings to integers (and that mechanism has historically always been parseInt).
 
@@ -671,7 +676,7 @@ Leading with a semi-colon when using the module pattern is acceptable ... but un
     var val = parseInt(inputValue, 10);
     ```
 
-Do not use bitshifting to parse numbers.  If parseInt ever becomes a performance bottleneck (which is very unlikely) we can always revisit this rule, but for now using bitshifting is considered to be unecessary obfuscation of the code.
+  - Do not use bitshifting to parse numbers.  If parseInt ever becomes a performance bottleneck (which is very unlikely) we can always revisit this rule, but for now using bitshifting is considered to be unecessary obfuscation of the code.
 
   - Booleans:
 
